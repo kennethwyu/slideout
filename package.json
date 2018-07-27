@@ -2,7 +2,7 @@
   "name": "slideout",
   "repository": "git@github.com:mango/slideout.git",
   "description": "A touch slideout navigation menu for your mobile web apps.",
-  "author": "Guille Paz <guille87paz@gmail.com>",
+  "author": "Sergii Stotskyi <sergiy.stotskiy@freaksidea.com>",
   "version": "1.0.1",
   "scripts": {
     "build": "browserify -s Slideout -e index.js -o dist/slideout.js",
@@ -32,20 +32,5 @@
     "touch"
   ],
   "license": "MIT",
-  "spm": {
-    "dependencies": {
-      "decouple": "0.0.2",
-      "emitter": "git+https://github.com/Mango/emitter.git#0.0.7"
-    },
-    "main": "index.js"
-  },
-  "filename": "slideout.min.js",
-  "autoupdate": {
-    "source": "git",
-    "target": "git://github.com/Mango/slideout.git",
-    "basePath": "dist",
-    "files": [
-      "*.js"
-    ]
-  }
+  "filename": "slideout.min.js"
 }
