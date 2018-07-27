@@ -4,7 +4,7 @@
  * Module dependencies
  */
 var decouple = require('decouple');
-var Emitter = require('emitter');
+require('custom-event-polyfill');
 
 /**
  * Privates
@@ -20,7 +20,9 @@ var touch = {
   end: msPointerSupported ? 'MSPointerUp' : 'touchend'
 };
 var transition = {
-  end: 'webkitTransitionEnd' in html.style ? 'webkitTransitionEnd' : 'transitionend'
+  end: 'webkitTransitionEnd' in html.style
+    ? 'webkitTransitionEnd'
+    : 'transitionend'
 };
 
 var prefix = (function prefix() {
@@ -117,8 +119,20 @@ function Slideout(options) {
   }
 }
 
-Slideout.prototype = Object.create(Emitter.prototype);
-Slideout.prototype.constructor = Slideout;
+Slideout.prototype.emit = function(name) {
+  this.panel.dispatchEvent(new window.CustomEvent(name));
+  return this;
+};
+
+Slideout.prototype.on = function(name, listener, options) {
+  this.panel.addEventListener(name, listener, options);
+  return this;
+};
+
+Slideout.prototype.off = function(name, listener) {
+  this.panel.removeEventListener(name, listener);
+  return this;
+};
 
 /**
  * Opens the slideout menu.

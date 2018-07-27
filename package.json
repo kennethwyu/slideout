@@ -11,8 +11,8 @@
     "hint": "jshint index.js"
   },
   "dependencies": {
-    "decouple": "0.0.2",
-    "emitter": "git+https://github.com/Mango/emitter.git#0.0.7"
+    "custom-event-polyfill": "^1.0.6",
+    "decouple": "0.0.2"
   },
   "devDependencies": {
     "better-assert": "1.0.2",

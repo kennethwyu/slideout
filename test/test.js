@@ -10,7 +10,14 @@ if (typeof exports !== 'undefined') {
   var oldAddEventListener = window.HTMLElement.prototype.addEventListener;
   window.HTMLElement.prototype.addEventListener = function addEventListener(event, listener, options) {
     if (event === 'transitionend') {
-      setTimeout(listener, this.style.transitionDuration + 50);
+      var match = this.style.transition.match(/(\d+)(\w+)/) || []
+      var duration = Number(match[1]) || 200;
+
+      if (match[1] === 's') {
+        duration *= 1000
+      }
+
+      setTimeout(listener, duration + 50);
     } else {
       oldAddEventListener.call(this, event, listener, options);
     }
