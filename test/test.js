@@ -1,4 +1,4 @@
-if (exports) {
+if (typeof exports !== 'undefined') {
   var fs = require('fs');
   var jsdom = require('jsdom').jsdom;
   var html = fs.readFileSync('./test/index.html', 'utf-8');
@@ -6,6 +6,15 @@ if (exports) {
   window = document.defaultView;
   var Slideout = require('../');
   var assert = require('better-assert');
+
+  var oldAddEventListener = window.HTMLElement.prototype.addEventListener;
+  window.HTMLElement.prototype.addEventListener = function addEventListener(event, listener, options) {
+    if (event === 'transitionend') {
+      setTimeout(listener, this.style.transitionDuration + 50);
+    } else {
+      oldAddEventListener.call(this, event, listener, options);
+    }
+  };
 }
 
 var doc = window.document;
@@ -44,60 +53,6 @@ describe('Slideout', function () {
 
   it('should return a new instance.', function () {
     assert(slideout instanceof Slideout);
-  });
-
-  describe('should have the following methods:', function () {
-    var methods = [
-      'open',
-      'close',
-      'toggle',
-      'isOpen',
-      '_initTouchEvents',
-      '_translateXTo',
-      '_setTransition',
-      'on',
-      'once',
-      'off',
-      'emit'
-    ];
-    var i = 0;
-    var len = methods.length;
-    for (i; i < len; i += 1) {
-      (function (i) {
-        it('.' + methods[i] + '()', function (done) {
-          assert(typeof slideout[methods[i]] === 'function');
-          done()
-        });
-      }(i));
-    }
-  });
-
-  describe('should define the following properties:', function () {
-    var properties = [
-      'panel',
-      'menu',
-      '_startOffsetX',
-      '_currentOffsetX',
-      '_opening',
-      '_moved',
-      '_opened',
-      '_easing',
-      '_duration',
-      '_tolerance',
-      '_padding',
-      '_touch',
-      '_side'
-    ];
-    var i = 0;
-    var len = properties.length;
-    for (i; i < len; i += 1) {
-      (function (i) {
-        it('.' + properties[i] + '()', function (done) {
-          assert(slideout[properties[i]] !== undefined);
-          done()
-        });
-      }(i));
-    }
   });
 
   it('should add classnames to panel and menu DOM elements.', function () {

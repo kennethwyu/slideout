@@ -15,13 +15,17 @@ var doc = window.document;
 var html = doc.documentElement;
 var msPointerSupported = window.navigator.msPointerEnabled;
 var touch = {
-  'start': msPointerSupported ? 'MSPointerDown' : 'touchstart',
-  'move': msPointerSupported ? 'MSPointerMove' : 'touchmove',
-  'end': msPointerSupported ? 'MSPointerUp' : 'touchend'
+  start: msPointerSupported ? 'MSPointerDown' : 'touchstart',
+  move: msPointerSupported ? 'MSPointerMove' : 'touchmove',
+  end: msPointerSupported ? 'MSPointerUp' : 'touchend'
 };
+var transition = {
+  end: 'webkitTransitionEnd' in html.style ? 'webkitTransitionEnd' : 'transitionend'
+};
+
 var prefix = (function prefix() {
   var regex = /^(Webkit|Khtml|Moz|ms|O)(?=[A-Z])/;
-  var styleDeclaration = doc.getElementsByTagName('script')[0].style;
+  var styleDeclaration = html.style;
   for (var prop in styleDeclaration) {
     if (regex.test(prop)) {
       return '-' + prop.match(regex)[0].toLowerCase() + '-';
@@ -34,17 +38,25 @@ var prefix = (function prefix() {
   if ('KhtmlOpacity' in styleDeclaration) { return '-khtml-'; }
   return '';
 }());
-function extend(destination, from) {
-  for (var prop in from) {
-    if (from[prop]) {
-      destination[prop] = from[prop];
+
+var addPassiveListener = function(el, event, listener) {
+  el.addEventListener(event, listener, false);
+};
+
+try {
+  var options = Object.defineProperty({}, 'passive', {
+    get: function() {
+      addPassiveListener = function(el, event, listener) {
+        el.addEventListener(event, listener, { passive: true });
+      };
     }
-  }
-  return destination;
+  });
+
+  window.addEventListener('test', null, options);
+} catch(err) {
 }
-function inherits(child, uber) {
-  child.prototype = extend(child.prototype || {}, uber.prototype);
-}
+
+
 function hasIgnoredElements(el) {
   while (el.parentNode) {
     if (el.getAttribute('data-slideout-ignore') !== null) {
@@ -74,27 +86,29 @@ function Slideout(options) {
   this.menu = options.menu;
 
   // Sets options
-  this._touch = options.touch === undefined ? true : options.touch && true;
+  this._touch = options.touch === undefined || !!options.touch;
   this._side = options.side || 'left';
-  this._easing = options.fx || options.easing || 'ease';
+  this._easing = options.easing || 'ease';
   this._duration = parseInt(options.duration, 10) || 300;
   this._tolerance = parseInt(options.tolerance, 10) || 70;
   this._padding = this._translateTo = parseInt(options.padding, 10) || 256;
   this._orientation = this._side === 'right' ? -1 : 1;
   this._translateTo *= this._orientation;
 
+  var panelClassList = this.panel.classList;
+  var menuClassList = this.menu.classList;
   // Sets  classnames
-  if (!this.panel.classList.contains('slideout-panel')) {
-    this.panel.classList.add('slideout-panel');
+  if (!panelClassList.contains('slideout-panel')) {
+    panelClassList.add('slideout-panel');
   }
-  if (!this.panel.classList.contains('slideout-panel-' + this._side)) {
-    this.panel.classList.add('slideout-panel-' + this._side);
+  if (!panelClassList.contains('slideout-panel-' + this._side)) {
+    panelClassList.add('slideout-panel-' + this._side);
   }
-  if (!this.menu.classList.contains('slideout-menu')) {
-    this.menu.classList.add('slideout-menu');
+  if (!menuClassList.contains('slideout-menu')) {
+    menuClassList.add('slideout-menu');
   }
-  if (!this.menu.classList.contains('slideout-menu-' + this._side)) {
-    this.menu.classList.add('slideout-menu-' + this._side);
+  if (!menuClassList.contains('slideout-menu-' + this._side)) {
+    menuClassList.add('slideout-menu-' + this._side);
   }
 
   // Init touch events
@@ -103,10 +117,8 @@ function Slideout(options) {
   }
 }
 
-/**
- * Inherits from Emitter
- */
-inherits(Slideout, Emitter);
+Slideout.prototype = Object.create(Emitter.prototype);
+Slideout.prototype.constructor = Slideout;
 
 /**
  * Opens the slideout menu.
@@ -120,6 +132,7 @@ Slideout.prototype.open = function() {
   this._setTransition();
   this._translateXTo(this._translateTo);
   this._opened = true;
+
   setTimeout(function() {
     self.panel.style.transition = self.panel.style['-webkit-transition'] = '';
     self.emit('open');
@@ -139,11 +152,13 @@ Slideout.prototype.close = function() {
   this._setTransition();
   this._translateXTo(0);
   this._opened = false;
-  setTimeout(function() {
+  this.panel.addEventListener(transition.end, function close() {
+    self.panel.removeEventListener(transition.end, close);
     html.classList.remove('slideout-open');
-    self.panel.style.transition = self.panel.style['-webkit-transition'] = self.panel.style[prefix + 'transform'] = self.panel.style.transform = '';
+    self.panel.style[prefix + 'transition'] = '';
+    self.panel.style[prefix + 'transform'] = '';
     self.emit('close');
-  }, this._duration + 50);
+  });
   return this;
 };
 
@@ -166,7 +181,7 @@ Slideout.prototype.isOpen = function() {
  */
 Slideout.prototype._translateXTo = function(translateX) {
   this._currentOffsetX = translateX;
-  this.panel.style[prefix + 'transform'] = this.panel.style.transform = 'translateX(' + translateX + 'px)';
+  this.panel.style[prefix + 'transform'] = 'translateX(' + translateX + 'px)';
   return this;
 };
 
@@ -174,8 +189,7 @@ Slideout.prototype._translateXTo = function(translateX) {
  * Set transition properties
  */
 Slideout.prototype._setTransition = function() {
-  this.panel.style[prefix + 'transition'] = this.panel.style.transition = prefix + 'transform ' + this._duration + 'ms ' + this._easing;
-  return this;
+  this.panel.style[prefix + 'transition'] = prefix + 'transform ' + this._duration + 'ms ' + this._easing;
 };
 
 /**
@@ -187,26 +201,16 @@ Slideout.prototype._initTouchEvents = function() {
   /**
    * Decouple scroll event
    */
+  var notScrolling = function() {
+    scrolling = false;
+  };
   this._onScrollFn = decouple(doc, 'scroll', function() {
     if (!self._moved) {
       clearTimeout(scrollTimeout);
       scrolling = true;
-      scrollTimeout = setTimeout(function() {
-        scrolling = false;
-      }, 250);
+      scrollTimeout = setTimeout(notScrolling, 250);
     }
   });
-
-  /**
-   * Prevents touchmove event if slideout is moving
-   */
-  this._preventMove = function(eve) {
-    if (self._moved) {
-      eve.preventDefault();
-    }
-  };
-
-  doc.addEventListener(touch.move, this._preventMove);
 
   /**
    * Resets values on touchstart
@@ -222,7 +226,7 @@ Slideout.prototype._initTouchEvents = function() {
     self._preventOpen = (!self._touch || (!self.isOpen() && self.menu.clientWidth !== 0));
   };
 
-  this.panel.addEventListener(touch.start, this._resetTouchFn);
+  addPassiveListener(this.panel, touch.start, this._resetTouchFn);
 
   /**
    * Resets values on touchcancel
@@ -232,7 +236,7 @@ Slideout.prototype._initTouchEvents = function() {
     self._opening = false;
   };
 
-  this.panel.addEventListener('touchcancel', this._onTouchCancelFn);
+  addPassiveListener(this.panel, 'touchcancel', this._onTouchCancelFn);
 
   /**
    * Toggles slideout on touchend
@@ -245,7 +249,7 @@ Slideout.prototype._initTouchEvents = function() {
     self._moved = false;
   };
 
-  this.panel.addEventListener(touch.end, this._onTouchEndFn);
+  addPassiveListener(this.panel, touch.end, this._onTouchEndFn);
 
   /**
    * Translates panel on touchmove
@@ -290,14 +294,14 @@ Slideout.prototype._initTouchEvents = function() {
         html.classList.add('slideout-open');
       }
 
-      self.panel.style[prefix + 'transform'] = self.panel.style.transform = 'translateX(' + translateX + 'px)';
+      self.panel.style[prefix + 'transform'] = 'translateX(' + translateX + 'px)';
       self.emit('translate', translateX);
       self._moved = true;
     }
 
   };
 
-  this.panel.addEventListener(touch.move, this._onTouchMoveFn);
+  addPassiveListener(this.panel, touch.move, this._onTouchMoveFn);
 
   return this;
 };
@@ -326,15 +330,11 @@ Slideout.prototype.destroy = function() {
   this.close();
 
   // Remove event listeners
-  doc.removeEventListener(touch.move, this._preventMove);
   this.panel.removeEventListener(touch.start, this._resetTouchFn);
   this.panel.removeEventListener('touchcancel', this._onTouchCancelFn);
   this.panel.removeEventListener(touch.end, this._onTouchEndFn);
   this.panel.removeEventListener(touch.move, this._onTouchMoveFn);
   doc.removeEventListener('scroll', this._onScrollFn);
-
-  // Remove methods
-  this.open = this.close = function() {};
 
   // Return the instance so it can be easily dereferenced
   return this;

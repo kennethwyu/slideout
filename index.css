@@ -1,8 +1,3 @@
-body {
-  width: 100%;
-  height: 100%;
-}
-
 .slideout-menu {
   position: fixed;
   top: 0;
@@ -27,13 +22,13 @@ body {
   position: relative;
   z-index: 1;
   will-change: transform;
-  background-color: #FFF; /* A background-color is required */
   min-height: 100vh;
 }
 
 .slideout-open,
 .slideout-open body,
 .slideout-open .slideout-panel {
+  position: fixed;
   overflow: hidden;
 }
 

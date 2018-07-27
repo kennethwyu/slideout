@@ -21,22 +21,11 @@
 
 ## Installation
 
-Slideout is available on cdnjs
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
-```
-
 Also you can use one of many package managers
 
-    $ npm install slideout
-
-    $ spm install slideout
-
-    $ bower install slideout.js
-
-    $ component install mango/slideout
-
+```sh
+npm install slideout
+```
 ## Usage
 
 Implementing Slideout.js into your project is easy.
@@ -123,7 +112,8 @@ Then you just include Slideout.js, create a new instance with some options and c
 </script>
 ```
 
-#### Full example
+<details>
+  <summary>Full example</summary>
 
 ```html
 <!doctype html>
@@ -203,6 +193,7 @@ Then you just include Slideout.js, create a new instance with some options and c
   </body>
 </html>
 ```
+</details>
 
 ## Browser Support
 
