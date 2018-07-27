@@ -92,7 +92,7 @@ function Slideout(options) {
   this._easing = options.easing || 'ease';
   this._duration = parseInt(options.duration, 10) || 300;
   this._tolerance = parseInt(options.tolerance, 10) || 70;
-  this._padding = this._translateTo = parseInt(options.padding, 10) || 256;
+  this._padding = this._translateTo = parseInt(options.padding, 10) || window.innerWidth * 0.8;
   this._orientation = this._side === 'right' ? -1 : 1;
   this._translateTo *= this._orientation;
 

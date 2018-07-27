@@ -28,8 +28,13 @@
 .slideout-open,
 .slideout-open body,
 .slideout-open .slideout-panel {
-  position: fixed;
   overflow: hidden;
+}
+
+.slideout-open body {
+  position: fixed;
+  left: 0;
+  right: 0;
 }
 
 .slideout-open .slideout-menu {
