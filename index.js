@@ -111,9 +111,9 @@ function Slideout(options) {
     menuClassList.add('slideout-menu-' + this._side);
   }
 
-  // Init touch events
   if (this._touch) {
     this._initTouchEvents();
+    this._touch = this._touch !== 'manual';
   }
 }
 
@@ -133,10 +133,11 @@ Slideout.prototype.open = function() {
   this._translateXTo(this._translateTo);
   this._opened = true;
 
-  setTimeout(function() {
-    self.panel.style.transition = self.panel.style['-webkit-transition'] = '';
+  this.panel.addEventListener(transition.end, function open() {
+    self.panel.removeEventListener(transition.end, open);
+    self.panel.style[prefix + 'transition'] = '';
     self.emit('open');
-  }, this._duration + 50);
+  });
   return this;
 };
 
