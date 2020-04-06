@@ -3,7 +3,7 @@
   "repository": "git@github.com:mango/slideout.git",
   "description": "A touch slideout navigation menu for your mobile web apps.",
   "author": "Sergii Stotskyi <sergiy.stotskiy@freaksidea.com>",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "build": "browserify -s Slideout -e index.js -o dist/slideout.js",
     "test": "npm run build && istanbul cover _mocha",
