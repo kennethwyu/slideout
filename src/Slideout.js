@@ -177,6 +177,15 @@ export default class Slideout {
 
         if (this._opening && Math.abs(this._currentOffsetX) > this._tolerance) {
           this.open();
+        } else if (this._translateTo - Math.abs(this._currentOffsetX) <= this._tolerance / 2) {
+          this._setTransition();
+          this._translateXTo(this._translateTo);
+
+          const self = this;
+          this.panel.addEventListener(transition.end, function back() {
+            this.panel.removeEventListener(transition.end, back);
+            setStyle(self.panel, 'transition', '');
+          });
         } else {
           this.close();
         }
