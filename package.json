@@ -1,5 +1,5 @@
 {
-  "name": "drawer.js",
+  "name": "menu-drawer.js",
   "repository": "git@github.com:mango/slideout.git",
   "description": "A touch slideout navigation menu for your mobile web apps.",
   "author": "Sergii Stotskyi <sergiy.stotskiy@freaksidea.com>",
@@ -7,8 +7,9 @@
   "scripts": {
     "prebuild": "rm -rf dist/*",
     "build": "rollup -c",
-    "test": "istanbul cover _mocha",
+    "test": "NODE_ENV=test istanbul cover _mocha",
     "prerelease": "NODE_ENV=production npm run build",
+    "release": "npm run lint && npm test && npm publish",
     "lint": "eslint src/"
   },
   "devDependencies": {
@@ -27,13 +28,19 @@
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-terser": "^5.3.0"
   },
-  "main": "index.js",
+  "main": "dist/umd/index.js",
+  "module": "dist/es5m/index.js",
+  "es2015": "dist/es/index.js",
   "keywords": [
     "slideout",
     "offcanvas",
     "menu",
-    "touch"
+    "touch",
+    "drawer"
   ],
   "license": "MIT",
-  "filename": "slideout.min.js"
+  "files": [
+    "dist",
+    "index.css"
+  ]
 }

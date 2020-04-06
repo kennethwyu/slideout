@@ -87,8 +87,8 @@ describe('Slideout', function () {
       assert(drawer.panel.style.transition.search(/transform 300ms ease/) !== -1);
     });
 
-    it('should set _opened to true.', function () {
-      assert(drawer._opened === true);
+    it('should be isOpen.', function () {
+      assert(drawer.isOpen());
     });
 
     it('should emit "beforeopen" event.', function () {
@@ -126,8 +126,8 @@ describe('Slideout', function () {
       assert(drawer.panel.style.transition === '');
     });
 
-    it('should set _opened to false.', function () {
-      assert(drawer._opened === false);
+    it('should be closed.', function () {
+      assert(drawer.isOpen() === false);
     });
 
     it('should emit "beforeclose" event.', function () {
