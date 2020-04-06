@@ -4,7 +4,7 @@ if (typeof exports !== 'undefined') {
   var html = fs.readFileSync('./test/index.html', 'utf-8');
   var document = jsdom(html);
   window = document.defaultView;
-  var Slideout = require('../');
+  var slideout = require('../dist/umd');
   var assert = require('better-assert');
 
   var oldAddEventListener = window.HTMLElement.prototype.addEventListener;
@@ -24,65 +24,71 @@ if (typeof exports !== 'undefined') {
   };
 }
 
+
 var doc = window.document;
 var beforeopenEvent = false;
 var openEvent = false;
 var beforecloseEvent = false;
 var closeEvent = false;
-var slideout = new Slideout({
-  'panel': doc.getElementById('panel'),
-  'menu': doc.getElementById('menu'),
-});
-
-slideout
-  .on('beforeopen', function() {
-    beforeopenEvent = true;
-  })
-  .on('open', function() {
-    openEvent = true;
-  })
-  .on('beforeclose', function() {
-    beforecloseEvent = true;
-  })
-  .on('close', function() {
-    closeEvent = true;
-  });
+var drawer;
 
 describe('Slideout', function () {
 
+  before(function () {
+    drawer = new slideout.Slideout({
+      panel: doc.getElementById('panel'),
+      menu: doc.getElementById('menu'),
+      padding: 256
+    });
+
+    drawer.on('beforeopen', function() {
+      beforeopenEvent = true;
+    });
+    drawer.on('open', function() {
+      openEvent = true;
+    });
+    drawer.on('beforeclose', function() {
+      beforecloseEvent = true;
+    });
+    drawer.on('close', function() {
+      closeEvent = true;
+    });
+  });
+
   it('should be defined.', function () {
-    assert(Slideout !== undefined);
+    assert(slideout !== undefined);
   });
 
   it('should be a function.', function () {
-    assert(typeof Slideout === 'function');
+    assert(typeof slideout.Slideout === 'function');
   });
 
   it('should return a new instance.', function () {
-    assert(slideout instanceof Slideout);
+    assert(drawer instanceof slideout.Slideout);
   });
 
   it('should add classnames to panel and menu DOM elements.', function () {
-    assert(slideout.panel.className.search('slideout-panel') !== -1);
-    assert(slideout.panel.className.search('slideout-panel-left') !== -1);
-    assert(slideout.menu.className.search('slideout-menu') !== -1);
-    assert(slideout.menu.className.search('slideout-menu-left') !== -1);
+    assert(drawer.panel.className.search('slideout-panel') !== -1);
+    assert(drawer.panel.className.search('slideout-panel-left') !== -1);
+    assert(drawer.menu.className.search('slideout-menu') !== -1);
+    assert(drawer.menu.className.search('slideout-menu-left') !== -1);
   });
 
   describe('.open()', function () {
     it('should add "slideout-open" classname to HTML.', function () {
       assert(doc.documentElement.className.search('slideout-open') === -1);
-      slideout.open();
+      drawer.open();
       assert(doc.documentElement.className.search('slideout-open') !== -1);
     });
 
     it('should translateX the panel to the given padding.', function () {
-      assert(slideout.panel.style.transform === 'translateX(256px)');
-      assert(slideout.panel.style.transition.search(/transform 300ms ease/) !== -1);
+      console.log(drawer.panel.style.transform, drawer.panel.style.transition)
+      assert(drawer.panel.style.transform === 'translateX(256px)');
+      assert(drawer.panel.style.transition.search(/transform 300ms ease/) !== -1);
     });
 
     it('should set _opened to true.', function () {
-      assert(slideout._opened === true);
+      assert(drawer._opened === true);
     });
 
     it('should emit "beforeopen" event.', function () {
@@ -99,15 +105,15 @@ describe('Slideout', function () {
   });
 
   describe('.isOpen()', function () {
-    it('should return true if the slideout is opened.', function () {
-      assert(slideout.isOpen());
+    it('should return true if the drawer is opened.', function () {
+      assert(drawer.isOpen());
     });
   });
 
   describe('.close()', function () {
     it('should remove "slideout-open" classname to HTML.', function (done) {
       assert(doc.documentElement.className.search('slideout-open') !== -1);
-      slideout.close();
+      drawer.close();
       setTimeout(function(){
         assert(doc.documentElement.className.search('slideout-open') === -1);
         done();
@@ -116,12 +122,12 @@ describe('Slideout', function () {
     });
 
     it('should translateX the panel to 0.', function () {
-      assert(slideout.panel.style.transform === '');
-      assert(slideout.panel.style.transition === '');
+      assert(drawer.panel.style.transform === '');
+      assert(drawer.panel.style.transition === '');
     });
 
     it('should set _opened to false.', function () {
-      assert(slideout._opened === false);
+      assert(drawer._opened === false);
     });
 
     it('should emit "beforeclose" event.', function () {
@@ -134,11 +140,11 @@ describe('Slideout', function () {
   });
 
   describe('.toggle()', function () {
-    it('should show the slideout if it is not opened.', function (done) {
+    it('should show the drawer if it is not opened.', function (done) {
       assert(doc.documentElement.className.search('slideout-open') === -1);
-      slideout.toggle();
+      drawer.toggle();
       assert(doc.documentElement.className.search('slideout-open') !== -1);
-      slideout.toggle();
+      drawer.toggle();
       setTimeout(function(){
         assert(doc.documentElement.className.search('slideout-open') === -1);
         done();
@@ -148,13 +154,13 @@ describe('Slideout', function () {
 
   describe('.destroy()', function() {
     it('should destroy the instance internals allowing a new one to be created in it\'s place.', function(){
-      slideout.destroy();
-      slideout = new Slideout({
+      drawer.destroy();
+      drawer = new slideout.Slideout({
         'panel': doc.getElementById('panel'),
         'menu': doc.getElementById('menu')
       });
-      slideout.open();
-      setTimeout(function(){ slideout.close(); }, 750);
+      drawer.open();
+      setTimeout(function(){ drawer.close(); }, 750);
     });
   });
 });

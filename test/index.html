@@ -88,16 +88,16 @@
         if (!expr) throw new Error(msg || 'failed');
       }
     </script>
-    <script src="../dist/slideout.js"></script>
+    <script src="../dist/umd/index.js"></script>
     <script src="test.js"></script>
     <script>
       window.onload = function() {
         document.querySelector('.js-slideout-toggle').addEventListener('click', function() {
-          slideout.toggle();
+          drawer.toggle();
         });
 
         document.querySelector('.menu').addEventListener('click', function(eve) {
-          if (eve.target.nodeName === 'A') { slideout.close(); }
+          if (eve.target.nodeName === 'A') { drawer.close(); }
         });
 
         var runner = mocha.run();

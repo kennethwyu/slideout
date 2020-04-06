@@ -1,28 +1,31 @@
 {
-  "name": "slideout-me",
+  "name": "drawer.js",
   "repository": "git@github.com:mango/slideout.git",
   "description": "A touch slideout navigation menu for your mobile web apps.",
   "author": "Sergii Stotskyi <sergiy.stotskiy@freaksidea.com>",
   "version": "1.0.2",
   "scripts": {
-    "build": "browserify -s Slideout -e index.js -o dist/slideout.js",
-    "test": "npm run build && istanbul cover _mocha",
-    "dist": "npm run build && uglifyjs ./dist/slideout.js -m -o ./dist/slideout.min.js",
-    "hint": "jshint index.js"
-  },
-  "dependencies": {
-    "custom-event-polyfill": "^1.0.6",
-    "decouple": "0.0.2"
+    "prebuild": "rm -rf dist/*",
+    "build": "rollup -c",
+    "test": "istanbul cover _mocha",
+    "prerelease": "NODE_ENV=production npm run build",
+    "lint": "eslint src/"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "better-assert": "1.0.2",
-    "browserify": "^16.2.2",
     "coveralls": "2.11.15",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2",
     "istanbul": "^0.4.5",
     "jsdom": "9.8.3",
-    "jshint": "2.9.4",
     "mocha": "^5.2.0",
-    "uglify-js": "^3.4.5"
+    "rollup": "^2.3.3",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-terser": "^5.3.0"
   },
   "main": "index.js",
   "keywords": [

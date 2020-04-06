@@ -84,10 +84,10 @@
         <p>with <span class="heart">❤</span> by <a href="https://getmango.com/en" target="_blank">Mango</a></p>
       </footer>
     </main>
-    <script src="../dist/slideout.js"></script>
+    <script src="../dist/umd/index.js"></script>
     <script>
       window.onload = function() {
-        var slideout = new Slideout({
+        var drawer = new slideout.Slideout({
           'panel': document.getElementById('panel'),
           'menu': document.getElementById('menu'),
           'side': 'right',
@@ -95,11 +95,13 @@
         });
 
         document.querySelector('.js-slideout-toggle').addEventListener('click', function() {
-          slideout.toggle();
+          drawer.toggle();
         });
 
         document.querySelector('.menu').addEventListener('click', function(eve) {
-          if (eve.target.nodeName === 'A') { slideout.close(); }
+          if (eve.target.nodeName === 'A') {
+            drawer.close();
+          }
         });
       };
     </script>
