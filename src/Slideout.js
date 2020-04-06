@@ -24,6 +24,7 @@ export default class Slideout {
   constructor(options = {}) {
     this.panel = options.panel;
     this.menu = options.menu;
+    this._eventsEmitter = options.eventsEmitter || this.panel;
 
     // initial values
     this._startOffsetX = 0;
@@ -74,13 +75,13 @@ export default class Slideout {
   }
 
   _emit(name) {
-    this.panel.dispatchEvent(new window.CustomEvent(name));
+    this._eventsEmitter.dispatchEvent(new window.CustomEvent(name));
     return this;
   }
 
   on(name, listener, options) {
-    this.panel.addEventListener(name, listener, options);
-    return () => this.panel.removeEventListener(name, listener, options);
+    this._eventsEmitter.addEventListener(name, listener, options);
+    return () => this._eventsEmitter.removeEventListener(name, listener, options);
   }
 
   open() {
